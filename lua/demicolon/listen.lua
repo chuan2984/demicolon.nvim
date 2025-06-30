@@ -4,7 +4,7 @@ local M = {}
 ---@return boolean
 local function is_native_repeatable_motion(previous_key)
   -- Motion is split into two and starts with `]` or `[`
-  return vim.tbl_contains({ ']', '[' }, previous_key)
+  return vim.tbl_contains({ "]", "[" }, previous_key)
 end
 
 ---@param forward boolean
@@ -12,25 +12,24 @@ end
 ---@return string
 local function motion_from_direction(forward, motion)
   local prefix = motion:sub(1, 1) -- `]` or `[`
-  assert(prefix == ']' or '[', 'demicolon.nvim: motion does not start with ] or [')
-  local key = motion:sub(2)       -- The rest of the motion
+  assert(prefix == "]" or "[", "demicolon.nvim: motion does not start with ] or [")
+  local key = motion:sub(2) -- The rest of the motion
 
   -- This deals with the special cases where the second character is a
   -- delimiter, which behave opposite to all other bracket motions
   local opposite_delimiters = {
-    ['['] = ']',
-    [']'] = '[',
-    ['('] = ')',
-    [')'] = '(',
-    ['{'] = '}',
-    ['}'] = '{',
+    ["["] = "]",
+    ["]"] = "[",
+    ["("] = ")",
+    [")"] = "(",
+    ["{"] = "}",
+    ["}"] = "{",
   }
 
-  local new_prefix = forward and ']' or '['
-  local new_key = new_prefix ~= prefix
-      and opposite_delimiters[key]
-      -- Fallback
-      or key
+  local new_prefix = forward and "]" or "["
+  local new_key = new_prefix ~= prefix and opposite_delimiters[key]
+    -- Fallback
+    or key
 
   return new_prefix .. new_key
 end
@@ -42,7 +41,7 @@ local function has_bracket_prefix(string)
   end
 
   local prefix = string:sub(1, 1)
-  return prefix == ']' or prefix == '['
+  return prefix == "]" or prefix == "["
 end
 
 ---@param disabled_keys table<string>
@@ -75,12 +74,12 @@ function M.listen_for_repetable_bracket_motions(disabled_keys)
     end
 
     if motion then
-      local ts_repeatable_move = require('nvim-treesitter.textobjects.repeatable_move')
+      local ts_repeatable_move = require("nvim-treesitter-textobjects.repeatable_move")
       ts_repeatable_move.last_move = {
         func = function(opts)
           local new_motion = motion_from_direction(opts.forward, motion)
           local keys = vim.api.nvim_replace_termcodes(new_motion, true, false, true)
-          vim.api.nvim_feedkeys(keys, 'x', true)
+          vim.api.nvim_feedkeys(keys, "x", true)
         end,
         opts = {},
         additional_args = {},
